@@ -1,0 +1,97 @@
+name: Build Executables
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+#  push:
+#    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+      # Check-out repository
+      - uses: actions/checkout@v3
+
+      # Setup Python
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '>=3.9 <=3.12'
+          architecture: 'x64'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+
+      # Install toml module to parse pyproject.toml
+      - run: pip install toml
+
+      # Extract the package version from pyproject.toml
+      - name: Get Package Version
+        id: get_version
+        run: |
+          import toml
+          version = toml.load('pyproject.toml')['tool']['poetry']['version']
+          print(f"::set-output name=VERSION::{version}")
+        shell: python
+
+      # Build python script into a standalone exe
+      - uses: Nuitka/Nuitka-Action@main
+        with:
+          script-name: niftiview_app/main.py
+          onefile: true
+          enable-plugins: tk-inter
+          include-package-data: cmap.data,niftiview.data,colorbar.data,tkinterdnd2,niftiview_app.data
+          include-package: cmap
+          windows-icon-from-ico: niftiview_app/data/niftiview.ico
+          linux-icon: niftiview_app/data/niftiview.png
+          #macos-app-icon: niftiview/data/niftiview.ico
+          windows-console-mode: disable
+          disable-console: true
+          nofollow-import-to: pytest
+          output-file: ${{ matrix.os == 'windows-latest' && 'NiftiView' || 'NiftiView.bin' }}
+
+      # Uploads artifact
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: niftiview_linux_${{ steps.get_version.outputs.VERSION }}
+          path: build/*.bin
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: niftiview_windows_${{ steps.get_version.outputs.VERSION }}
+          path: build/*.exe
+
+      # # Create a release
+      # - name: Create Release
+      #   id: create_release
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     tag_name: v${{ steps.get_version.outputs.VERSION }}
+      #     release_name: Release v${{ steps.get_version.outputs.VERSION }}
+      #     body: |
+      #       This release includes the built artifacts.
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # # Upload Release Assets
+      # - name: Upload Release Assets
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     tag_name: v${{ steps.get_version.outputs.VERSION }}
+      #     files: |
+      #       build/*.exe
+      #       build/*.bin
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

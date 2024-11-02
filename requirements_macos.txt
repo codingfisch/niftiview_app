@@ -1,0 +1,6 @@
+numpy==2.0.2
+niftiview
+customtkinter
+tkinterdnd2-universal
+dcm2niix
+CTkMenuBar
