@@ -18,7 +18,7 @@ Learn how to use NiftiView via [the **YouTube-Tutorial**](https://www.youtube.co
 
 ## Installation 🛠️
 ### Windows 🪟 or Linux 🐧
-Download the app [**here**](https://github.com/codingfisch/niftiview_app), unzip the downloaded file and double-click either
+Download the app [**here**](https://github.com/codingfisch/niftiview_app/releases), unzip the downloaded file and double-click either
 - NiftiView.exe (+ ignore potential virus alert, if you are using Windows)
 - NiftiView.bin (+ previously run `chmod +x NiftiView.bin` in a terminal, if you are using Linux) 
 
