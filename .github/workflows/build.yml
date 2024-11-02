@@ -64,13 +64,13 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: niftiview_linux_${{ steps.get_version.outputs.VERSION }}
+          name: niftiview_v${{ steps.get_version.outputs.VERSION }}_linux
           path: build/*.bin
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: niftiview_windows_${{ steps.get_version.outputs.VERSION }}
+          name: niftiview_v${{ steps.get_version.outputs.VERSION }}_windows
           path: build/*.exe
 
       # # Create a release
